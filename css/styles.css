@@ -48,6 +48,16 @@ h3 {
     padding-top: 10px;
 } 
 
+h4 { 
+    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace; 
+    font-size: 17px; 
+    font-style: normal; 
+    font-variant: normal; 
+    font-weight: 700; 
+    line-height: 23px; 
+    padding-top: 10px;
+} 
+
 p { 
     font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace; 
     font-size: 14px; 
@@ -80,6 +90,11 @@ pre {
     padding: 50px;
 }
 
+.item-wrapper {
+    margin: 0 auto;
+    overflow: auto;
+}
+
 .center {
     margin: 0 auto;
     width: 50%;
@@ -90,6 +105,16 @@ pre {
     content: "";
     display: table;
     clear: both;
+}
+
+.left {
+    float: left;
+    width: 75%;
+}
+
+.right {
+    margin-left: 75%;
+    text-align: right;
 }
 
 .list-wrapper {
