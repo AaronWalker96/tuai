@@ -57,6 +57,8 @@ h4 {
     font-weight: 700; 
     line-height: 23px; 
     padding-top: 10px;
+    padding-bottom: 0px;
+    margin-bottom: 18px;
 } 
 
 p { 
