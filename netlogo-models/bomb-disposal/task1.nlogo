@@ -4,9 +4,12 @@ breed [ bins bin ]
 
 robots-own [ holding ]
 
+globals [ bombs-collected ]
+
 to setup
   clear-all
   reset-ticks
+  set bombs-collected 0
 
   ask patches [
     set pcolor white
@@ -24,6 +27,10 @@ to setup
     set shape "x"
   ]
 
+  ask robots [
+    set holding false
+  ]
+
   position-random
 end
 
@@ -34,38 +41,39 @@ to position-random
 end
 
 to go
-  if count bombs = 0 [ stop ]
-  ask robots [ pickup-bombs ]
+  if bombs-collected = num-of-bombs [ stop ]
+
   ask robots [
-    if holding = true [
-      dispose
-    ]
+    ifelse (holding)
+    [ dispose ]
+    [ pickup-bombs ]
   ]
+
   tick
 end
 
 to pickup-bombs
   if count bombs > 0 [
     face nearest-of other bombs
-    forward 0.001
-    if bombs-here = true [
+    forward 0.5
+    if (count bombs-here > 0) [
       ask bombs-here [
         die
       ]
       set holding true
+      set color red
     ]
   ]
 end
 
 to dispose
-  face bin
-    forward 0.001
-    if bombs-here = true [
-      ask bombs-here [
-        die
-      ]
-      set holding true
-    ]
+  face nearest-of other bins
+  forward 0.5
+  if (count bins-here > 0) [
+    set holding false
+    set color blue
+    set bombs-collected bombs-collected + 1
+  ]
 end
 
 to-report nearest-of [#breed]
@@ -87,8 +95,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
@@ -141,7 +149,7 @@ num-of-bombs
 num-of-bombs
 0
 50
-10.0
+50.0
 1
 1
 NIL
@@ -163,6 +171,46 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+665
+15
+785
+60
+Bombs remaining
+count bombs
+17
+1
+11
+
+PLOT
+670
+81
+870
+231
+Bombs Remaining
+Ticks
+Count Bombs
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"Bombs" 1.0 0 -2674135 true "" "plot count bombs"
+
+MONITOR
+671
+253
+789
+298
+NIL
+bombs-collected
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?

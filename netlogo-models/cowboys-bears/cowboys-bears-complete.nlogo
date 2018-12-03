@@ -1,78 +1,60 @@
-breed [ robots robot ]
-breed [ bombs bomb ]
-breed [ bins bin ]
+;;Create cowboys and bears
+breed [ cowboys cowboy ]
+breed [ bears bear ]
 
-robots-own [ holding ]
-
+;;Setup function
 to setup
   clear-all
-  reset-ticks
 
   ask patches [
-    set pcolor white
+    set pcolor green
   ]
 
-  create-robots num-of-robots [
-    set color blue
+  create-cowboys num-cowboys [
+    set color black
+    set shape "person"
   ]
-  create-bombs num-of-bombs [
+
+  create-bears num-bears [
     set color red
-    set shape "flag"
-  ]
-  create-bins 1 [
-    set color green
-    set shape "x"
+    set shape "footprint other"
   ]
 
-  ask robots [
-    set holding false
-  ]
-
-  position-random
+  ask turtles [ setxy random-xcor random-ycor ]
 end
 
-to position-random
-  ask turtles [
-    setxy random-xcor random-ycor
-  ]
-end
-
-to go
-  if count bombs = 0 [ stop ]
-
-  ask robots [
-    if holding = false [ pickup-bombs ]
-    if holding = true [ dispose ]
-  ]
-
-  tick
-end
-
-to pickup-bombs
-  if count bombs > 0 [
-    face nearest-of other bombs
-    forward 0.001
-    if bombs-here = true [
-      ask bombs-here [
-        die
-      ]
-      set holding true
-    ]
-  ]
-end
-
-to dispose
-  face nearest-of obins
-    forward 0.001
-    if bins-here = true [
-      set holding false
-    ]
-end
-
+;;Function to face closest thing
 to-report nearest-of [#breed]
   report min-one-of #breed [distance myself]
 end
 
+;;Go function
+to go
+  ;;Stop the simulation if there are no cowboys left
+  if count cowboys = 0 [ stop ]
+
+  cowboys.move
+  bears.move
+end
+
+;;To make the cowboys run away from the bears
+to cowboys.move
+  ask cowboys [
+    face nearest-of bears
+    forward -0.5
+  ]
+end
+
+;;To make the bears chase the cowboys (and eat them)
+to bears.move
+  ask bears [
+    face nearest-of cowboys
+    forward 0.7
+    ask cowboys-here [
+      die
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -102,12 +84,12 @@ ticks
 30.0
 
 BUTTON
-20
-24
-86
-57
+30
+26
+96
+59
 NIL
-Setup
+setup
 NIL
 1
 T
@@ -118,41 +100,11 @@ NIL
 NIL
 1
 
-SLIDER
-19
-90
-191
-123
-num-of-robots
-num-of-robots
-0
-10
-2.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-19
-139
-191
-172
-num-of-bombs
-num-of-bombs
-0
-50
-10.0
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-128
-25
-191
-58
+111
+26
+174
+59
 NIL
 go
 T
@@ -164,6 +116,47 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+18
+79
+190
+112
+num-bears
+num-bears
+0
+20
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+18
+127
+190
+160
+num-cowboys
+num-cowboys
+0
+50
+10.0
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+18
+178
+190
+223
+Remaining cowboys
+count cowboys
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -343,6 +336,19 @@ Circle -7500403 true true 96 51 108
 Circle -16777216 true false 113 68 74
 Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
 Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
+
+footprint other
+true
+0
+Polygon -7500403 true true 75 195 90 240 135 270 165 270 195 255 225 195 225 180 195 165 177 154 167 139 150 135 132 138 124 151 105 165 76 172
+Polygon -7500403 true true 250 136 225 165 210 135 210 120 227 100 241 99
+Polygon -7500403 true true 75 135 90 135 105 120 105 75 90 75 60 105
+Polygon -7500403 true true 120 122 155 121 161 62 148 40 136 40 118 70
+Polygon -7500403 true true 176 126 200 121 206 89 198 61 186 57 166 106
+Polygon -7500403 true true 93 69 103 68 102 50
+Polygon -7500403 true true 146 34 136 33 137 15
+Polygon -7500403 true true 198 55 188 52 189 34
+Polygon -7500403 true true 238 92 228 94 229 76
 
 house
 false
