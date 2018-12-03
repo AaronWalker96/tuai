@@ -149,3 +149,21 @@ pre {
     color: black;
     list-style-type: square;
 }
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: black;
+    text-align: right;
+}
+
+.footer-padding {
+    padding: 20px;
+    padding-right: 30px;
+}
+
+#darkbutton {
+    cursor: pointer;
+}
