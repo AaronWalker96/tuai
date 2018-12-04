@@ -1,85 +1,55 @@
 breed [ robots robot ]
-breed [ bombs bomb ]
-breed [ bins bin ]
 
-robots-own [ holding ]
-
-globals [ bombs-collected ]
-
+;;Setup function
 to setup
   clear-all
-  reset-ticks
-  set bombs-collected 0
-
-  ask patches [
-    set pcolor white
-  ]
-
-  create-robots num-of-robots [
-    set color blue
-  ]
-  create-bombs num-of-bombs [
-    set color red
-    set shape "flag"
-  ]
-  create-bins 1 [
-    set color green
-    set shape "x"
-  ]
-
-  ask robots [
-    set holding false
-  ]
-
-  position-random
+  ask patches [ set pcolor black ]
+  create-robots 1 [ set color white ]
 end
 
-to position-random
-  ask turtles [
-    setxy random-xcor random-ycor
-  ]
+;;Change the colour of a patch when the robot steps on it
+to color-patch
+  set pcolor green
 end
 
+;;Go function
 to go
-  if bombs-collected = num-of-bombs [ stop ]
-
   ask robots [
-    ifelse (holding)
-    [ dispose ]
-    [ pickup-bombs ]
-  ]
+    ;;====================== DRAWING INSTRUCTIONS======================
 
-  tick
-end
 
-to pickup-bombs
-  if count bombs > 0 [
-    face nearest-of other bombs
-    forward 0.5
-    if (count bombs-here > 0) [
-      ask bombs-here [
-        die
-      ]
-      set holding true
-      set color red
-    ]
+
+    ;;==================== END DRAWING INSTRUCTIONS ===================
   ]
 end
 
-to dispose
-  face nearest-of other bins
-  forward 0.5
-  if (count bins-here > 0) [
-    set holding false
-    set color blue
-    set bombs-collected bombs-collected + 1
-  ]
+;;The code to make a robot move up (north)
+to move-up
+  set heading 0 ;;make the robot face north (headings can go from 0 to 360, like a compas)
+  forward 1 ;;move forward 1 step
+  color-patch ;;change the color of the tile the robot is on
 end
 
-to-report nearest-of [#breed]
-  report min-one-of #breed [distance myself]
+;;====== TO DO =======
+to move-down
+
+  ;;Write some code to make the robot move down (south)
+
 end
 
+;;====== TO DO =======
+to move-left
+
+  ;;Write some code to make the robot move left (west)
+
+end
+
+;;====== TO DO =======
+to move-right
+
+  ;;Write some code to make the robot move right (east)
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -95,8 +65,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-0
-0
+1
+1
 1
 -16
 16
@@ -109,12 +79,12 @@ ticks
 30.0
 
 BUTTON
-20
-24
-86
-57
+17
+21
+83
+54
 NIL
-Setup
+setup
 NIL
 1
 T
@@ -124,45 +94,15 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-19
-90
-191
-123
-num-of-robots
-num-of-robots
-0
-10
-2.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-19
-139
-191
-172
-num-of-bombs
-num-of-bombs
-0
-50
-50.0
-1
-1
-NIL
-HORIZONTAL
 
 BUTTON
-128
-25
-191
-58
+101
+24
+164
+57
 NIL
 go
-T
+NIL
 1
 T
 OBSERVER
@@ -171,46 +111,6 @@ NIL
 NIL
 NIL
 1
-
-MONITOR
-665
-15
-785
-60
-Bombs remaining
-count bombs
-17
-1
-11
-
-PLOT
-670
-81
-870
-231
-Bombs Remaining
-Ticks
-Count Bombs
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"Bombs" 1.0 0 -2674135 true "" "plot count bombs"
-
-MONITOR
-671
-253
-789
-298
-NIL
-bombs-collected
-17
-1
-11
 
 @#$#@#$#@
 ## WHAT IS IT?

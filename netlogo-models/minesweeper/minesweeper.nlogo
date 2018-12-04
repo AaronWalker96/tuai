@@ -1,281 +1,166 @@
-globals
-[ lead-patch
-  ant
-  phase       ;; used in conway
-]
+;;Create agents
+breed [ robots robot ]
+breed [ bombs bomb ]
+breed [ bins bin ]
 
-patches-own
-[ decay
-  alive?
-  next?
-  live-neighbors
-]
+;;Robot properties
+robots-own [ holding ]
 
+;;World properties
+globals [ bombs-collected ]
 
-
+;;Setup function
 to setup
-  run (word "setup-" example-type)
+  clear-all
+  reset-ticks
+  set bombs-collected 0
+  ask patches [ set pcolor white ]
+  create-robots num-of-robots [ set color blue ]
+  create-bombs num-of-bombs [
+    set color red
+    set shape "flag" ]
+  create-bins 1 [
+    set color green
+    set shape "x" ]
+  ask robots [ set holding false ]
+  ask turtles [ setxy random-xcor random-ycor ]
 end
 
+;;To face closest other thing
+to-report nearest-of [#breed]
+  report min-one-of #breed [distance myself]
+end
 
+;;Go function
 to go
-  run (word "go-" example-type)
+  if bombs-collected = num-of-bombs [ stop ]
+
+  ask robots [
+    ifelse (holding)
+    [ robot.move-to-bin
+      robot.dispose
+    ]
+    [ if count bombs > 0
+      [ robot.find-bomb
+        robot.pickup-bomb
+      ]
+    ]
+  ]
+
   tick
 end
 
-
-;===============================
-; patch-1
-;===============================
-
-
-to setup-patch-1
-  clear-all
-  set lead-patch (patch -9 0)
-  ask lead-patch
-  [ set pcolor blue
-    set decay 5
-  ]
-  reset-ticks
+;;Move the robot towards a bomb
+to robot.find-bomb
+  face nearest-of other bombs
+  forward 0.1
 end
 
-
-to go-patch-1
-  let x 0
-  let y 0
-  ask lead-patch
-  [ set x (pxcor + 1)
-    set y (pycor + 1)
-  ]
-  ask patches with [decay > 0]
-  [ set decay (decay - 1)]
-  ask patches with [decay = 0] [ set pcolor black ]
-  ;set lead-patch (patch ([xcor] of lead-patch) ([ycor] of lead-patch))
-  set lead-patch (patch x y)
-  ask lead-patch
-  [ set pcolor blue
-    set decay 5
-  ]
+;;Move the robot towards the bin
+to robot.move-to-bin
+  face nearest-of other bins
+  forward 0.1
 end
 
-
-;============================
-; ant-1
-;============================
-
-
-
-to setup-ant-1
-  clear-all
-  crt 1
-  [ set color red
-    set heading 0
-    set ant self
-  ]
-  reset-ticks
-end
-
-
-to go-ant-1
-  ask patches with [decay > 0]
-  [ set decay (decay - 1)]
-  ask patches with [decay = 0] [ set pcolor black ]
-
-  ask ant
-  [ ask patch-here
-    [ set pcolor blue
-      set decay 5
+;;Get the robot to walk to the closest bomb and pick it up
+to robot.pickup-bomb
+  if (count bombs-here > 0) [
+    ask one-of bombs-here [
+      die
     ]
-    move-to patch-ahead 1
+    set holding true
+    set color red
   ]
 end
 
-
-
-;============================
-; rnd-ant
-;============================
-
-
-
-to setup-rnd-ant
-  clear-all
-  crt 1
-  [ set color red
-    set heading 0
-    set ant self
-  ]
-  reset-ticks
-end
-
-
-to go-rnd-ant
-  ask ant
-  [ if (random 8 = 0) [ right one-of [90 -90]]
-    move-to patch-ahead 1
-  ]
-end
-
-
-
-;============================
-; rnd-ant-trail
-;============================
-
-
-
-to setup-rnd-ant-trail
-  setup-ant-1
-end
-
-
-to go-rnd-ant-trail
-  if (random 8 = 0)
-  [ ask ant
-    [ right one-of [90 -90]]
-  ]
-  go-ant-1
-end
-
-
-
-;============================
-; conway
-;============================
-
-
-
-to setup-conway
-  clear-all
-  ask patches
-  [ set alive? false
-    set next? false
-  ]
-  let #glider [[-2 1] [-1 0] [-3 -1] [-2 -1] [-1 -1]]
-  foreach #glider
-  [ #x ->
-    ask patches with [pxcor = (item 0 #x) and pycor = (item 1 #x)]
-    [ set alive? true
-      set pcolor blue ]
-  ]
-  set phase "prep"
-  reset-ticks
-end
-
-
-to go-conway
-  ifelse (phase = "prep")
-  [ ask patches
-    [ set live-neighbors count neighbors with [alive?] ]
-    ask patches
-    [ update-patch ]
-    ask patches
-    [ if (next? != alive?)
-      [ ifelse next?
-        [ sprout 1 [ set shape "dot" set color red  st]]
-        [ sprout 1 [ set shape "x"   set color red  st]]
-    ]]
-    set phase "update"
-  ]
-  [ ask turtles [die]
-    ask patches
-    [ set alive? next?
-      ifelse alive?
-      [ set pcolor blue  ]
-      [ set pcolor black ]
-    ]
-    set phase "prep"
-  ]
-end
-
-
-to update-patch
-  set next? alive?
-  ifelse alive?
-  [ if live-neighbors > 3  [ (set next? false) stop ]
-    if live-neighbors < 2  [ (set next? false) stop ]
-  ]
-  [ ;; else not alive?
-    if live-neighbors = 3  [ (set next? true) stop ]
+;;Get the robot to take the bomb it's holding to the bin
+to robot.dispose
+  if (count bins-here > 0) [
+    set holding false
+    set color blue
+    set bombs-collected bombs-collected + 1
   ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-618
-419
+647
+448
 -1
 -1
-16.0
+13.0
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--12
-12
--12
-12
-1
-1
+-16
+16
+-16
+16
+0
+0
 1
 ticks
 30.0
 
-CHOOSER
-17
-14
-155
-59
-example-type
-example-type
-"patch-1" "ant-1" "rnd-ant" "rnd-ant-trail" "conway"
-0
-
-BUTTON
-19
-82
-82
-115
-NIL
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-91
-127
-154
-160
-once
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 BUTTON
 20
-126
-83
-159
+24
+86
+57
+NIL
+Setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+19
+90
+191
+123
+num-of-robots
+num-of-robots
+0
+10
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+19
+139
+191
+172
+num-of-bombs
+num-of-bombs
+0
+50
+20.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+128
+25
+191
+58
 NIL
 go
 T
@@ -288,22 +173,45 @@ NIL
 NIL
 1
 
-BUTTON
-91
-83
-154
-116
-clear
-clear-all\nreset-ticks
-NIL
+MONITOR
+665
+15
+785
+60
+Bombs remaining
+count bombs
+17
 1
-T
-OBSERVER
+11
+
+PLOT
+670
+81
+870
+231
+Bombs Remaining
+Ticks
+Count Bombs
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"Bombs" 1.0 0 -2674135 true "" "plot count bombs"
+
+MONITOR
+671
+253
+789
+298
 NIL
-NIL
-NIL
-NIL
+bombs-collected
+17
 1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
