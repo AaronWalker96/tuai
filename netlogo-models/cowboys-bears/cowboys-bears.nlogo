@@ -49,10 +49,12 @@ end
 ;;To make the bears chase the cowboys (and eat them)
 to bears.move
   ask bears [
-    face nearest-of cowboys
-    forward 0.7
-    ask cowboys-here [
-      die
+    if count cowboys > 0 [
+      face nearest-of cowboys
+      forward 0.7
+      ask cowboys-here [
+        die
+      ]
     ]
   ]
 end

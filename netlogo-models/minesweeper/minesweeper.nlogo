@@ -1,13 +1,15 @@
 ;;Create agents
 breed [ robots robot ]
+breed [ players player ]
 breed [ bombs bomb ]
 breed [ bins bin ]
 
 ;;Robot properties
 robots-own [ holding ]
+players-own [ holding ]
 
 ;;World properties
-globals [ bombs-collected ]
+globals [ bombs-collected mouse-was-down? ]
 
 ;;Setup function
 to setup
@@ -16,6 +18,7 @@ to setup
   set bombs-collected 0
   ask patches [ set pcolor white ]
   create-robots num-of-robots [ set color blue ]
+  create-players 1 [ set color green ]
   create-bombs num-of-bombs [
     set color red
     set shape "flag" ]
@@ -23,6 +26,7 @@ to setup
     set color green
     set shape "x" ]
   ask robots [ set holding false ]
+  ask players [ set holding false ]
   ask turtles [ setxy random-xcor random-ycor ]
 end
 
@@ -47,19 +51,25 @@ to go
     ]
   ]
 
-  tick
+  ask players [
+    ifelse (holding)
+    [ robot.dispose
+    ]
+    [ robot.pickup-bomb
+    ]
+  ]
 end
 
 ;;Move the robot towards a bomb
 to robot.find-bomb
   face nearest-of other bombs
-  forward 0.1
+  forward (ai-speed / 10000)
 end
 
 ;;Move the robot towards the bin
 to robot.move-to-bin
   face nearest-of other bins
-  forward 0.1
+  forward (ai-speed / 10000)
 end
 
 ;;Get the robot to walk to the closest bomb and pick it up
@@ -81,6 +91,28 @@ to robot.dispose
     set bombs-collected bombs-collected + 1
   ]
 end
+
+
+
+
+to-report mouse-clicked?
+  report (mouse-was-down? = true and not mouse-down?)
+end
+
+to mouse-manager
+  let mouse-is-down? mouse-down?
+  if mouse-clicked? [
+    move-player
+  ]
+  set mouse-was-down? mouse-is-down?
+end
+
+to move-player
+  ask players [
+    facexy mouse-xcor mouse-ycor
+    forward 0.5 ]
+end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -212,6 +244,38 @@ bombs-collected
 17
 1
 11
+
+SLIDER
+20
+203
+192
+236
+ai-speed
+ai-speed
+0
+10
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+71
+281
+144
+314
+mouse
+mouse-manager
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
